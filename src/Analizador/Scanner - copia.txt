@@ -1,0 +1,117 @@
+package Analizador;
+import java_cup.runtime.Symbol;
+import java.util.LinkedList;
+%%
+%cupsym simbolos
+%class scanner
+%cup
+%unicode
+%public
+%line
+%full
+%char
+%column
+%ignorecase
+mayus=[A-ZÑ]
+minus=[a-zñ]
+letra={mayus}|{minus}
+num=[0-9]
+ttentero="entero"
+ttletra="letra"
+ttbool="bool"
+ttcadena="cadena"
+tentero={num}+
+tletra={letra}
+tverdadero="verdadero"
+tfalso="falso"
+tcadena={letra}({letra}|"-"|num)+
+tmas="+"
+tmenos="-"
+tmulti="*"
+tdiv="/"
+tigual="="
+tparena="("
+tparenc=")"
+tmayor=">"
+tmenor="<"
+tvar="var"
+tid={letra}({letra}|{num}|"_")*
+tcora="["
+tcorc="]"
+tllava="{"
+tllavc="}"
+tmientras="mientras"
+thacer="hacer"
+tfin="fin"
+tpara="para"
+taletra="aletra"
+tconcat="concatenar"
+tcoma=","
+tsepara="separador"
+tcrear="crear_archivo"
+tdpuntos=":"
+tpath={letra}{tdpuntos} ({tdiv} (({letra}|{num}|" "|"_"))+)+ {tdiv} {tid}".txt"
+tanexar="anexar_archivo"
+tsalto=[\t\r\f\n]+
+
+
+%{
+/* Lista con errores sintacticos */
+
+//public LinkedList<Errores> ErroresLexicos=new LinkedList<Errores>();
+/* Metodo que es llamado al encontrar un error lexico */
+//private void ErrorScan(int linea, int columna, String valor){
+//ErroresLexicos.add(new Errores(linea, columna, "Error lexico: caracter "+valor+" no valido") );
+//}
+
+
+%}
+
+
+%%
+{tvar} {return new Symbol(simbolos.tvar, yyline,yycolumn,yytext()); }
+{thacer} {return new Symbol(simbolos.thacer, yyline,yycolumn,yytext()); }
+{tpara} {return new Symbol(simbolos.tpara, yyline,yycolumn,yytext()); }
+{taletra} {return new Symbol(simbolos.taletra, yyline,yycolumn,yytext()); }
+{tconcat} {return new Symbol(simbolos.tconcat, yyline,yycolumn,yytext()); }
+{ttentero} {return new Symbol(simbolos.ttentero, yyline,yycolumn,yytext()); }
+{ttletra} {return new Symbol(simbolos.ttletra, yyline,yycolumn,yytext()); }
+{ttbool} {return new Symbol(simbolos.ttbool, yyline,yycolumn,yytext()); }
+{ttcadena} {return new Symbol(simbolos.ttcadena, yyline,yycolumn,yytext()); }
+{tentero} {return new Symbol(simbolos.tentero, yyline,yycolumn,yytext()); }
+{tletra} {return new Symbol(simbolos.tletra, yyline,yycolumn,yytext()); }
+{tverdadero} {return new Symbol(simbolos.tverdadero, yyline,yycolumn,yytext()); }
+{tfalso} {return new Symbol(simbolos.tfalso, yyline,yycolumn,yytext()); }
+{tcadena} {return new Symbol(simbolos.tcadena, yyline,yycolumn,yytext()); }
+{tmas} {return new Symbol(simbolos.tmas, yyline,yycolumn,yytext()); }
+{tmenos} {return new Symbol(simbolos.tmenos, yyline,yycolumn,yytext()); }
+{tmulti} {return new Symbol(simbolos.tmulti, yyline,yycolumn,yytext()); }
+{tigual} {return new Symbol(simbolos.tigual, yyline,yycolumn,yytext()); }
+{tparena} {return new Symbol(simbolos.tparena, yyline,yycolumn,yytext()); }
+{tparenc} {return new Symbol(simbolos.tparenc, yyline,yycolumn,yytext()); }
+{tmayor} {return new Symbol(simbolos.tmayor, yyline,yycolumn,yytext()); }
+{tmenor} {return new Symbol(simbolos.tmenor, yyline,yycolumn,yytext()); }
+
+{tcora} {return new Symbol(simbolos.tcora, yyline,yycolumn,yytext()); }
+{tcorc} {return new Symbol(simbolos.tcorc, yyline,yycolumn,yytext()); }
+{tllava} {return new Symbol(simbolos.tllava, yyline,yycolumn,yytext()); }
+{tllavc} {return new Symbol(simbolos.tllavc, yyline,yycolumn,yytext()); }
+{tmientras} {return new Symbol(simbolos.tmientras, yyline,yycolumn,yytext()); }
+
+{tfin} {return new Symbol(simbolos.tfin, yyline,yycolumn,yytext()); }
+{tcoma} {return new Symbol(simbolos.tcoma, yyline,yycolumn,yytext()); }
+{tsepara} {return new Symbol(simbolos.tsepara, yyline,yycolumn,yytext()); }
+{tcrear} {return new Symbol(simbolos.tcrear, yyline,yycolumn,yytext()); }
+{tdpuntos} {return new Symbol(simbolos.tdpuntos, yyline,yycolumn,yytext()); }
+{tpath} {return new Symbol(simbolos.tpath, yyline,yycolumn,yytext()); }
+{tanexar} {return new Symbol(simbolos.tanexar, yyline,yycolumn,yytext()); }
+{tid} {return new Symbol(simbolos.tid, yyline,yycolumn,yytext()); }
+
+{tsalto} {}
+
+
+. {
+		System.out.println("se encontro errlex: "+yyline+" "+yycolumn+" "+yytext());
+		//ErrorScan(yyline,yycolumn,yytext());
+			
+ } 

@@ -1,0 +1,344 @@
+package Analizador;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java_cup.runtime.*;
+parser code
+{:
+
+
+        public LinkedList<Errores> ErroresSintacticos=new LinkedList<Errores>();
+        
+       
+            /**Metodo al que se llama automaticamente ante algun error sintactico.*/
+	public void syntax_error(Symbol s){
+       ErroresSintacticos.add(new Errores(s.left+1,s.right,"Error sintactico Identificador " +s.value + " no reconocido." ));
+	   System.out.println("Error Sintactico: "+s.value+" fila: "+(s.left+1)+" columna: "+s.right);
+    }
+             /**Metodo al que se llama en el momento en que ya no es posible una recuperacion de errores.*/
+	public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+        ErroresSintacticos.add(new Errores(s.left+1,s.right,"G. Error sintactico  Identificador " +s.value + " no reconocido." ));
+	   System.out.println("Error Sintactico: "+s.value+" fila: "+(s.left+1)+" columna: "+s.right);
+    }
+	
+	//variables 
+	public HashMap<String, Variable> Variables = new HashMap<String, Variable>();
+	
+	public Nodo Instrucciones;
+	
+	
+:}
+action code
+{:
+	public void addVariable(String Id,String Tipo, String Valor)
+	{
+	if(!parser.Variables.containsKey(Id))
+	{
+	Variable v1=new Variable(Id,Tipo,Valor);
+	parser.Variables.put(Id,v1);
+	System.out.println("Se Agrego Var: "+Id+" Tipo: "+Tipo+" Valor: "+Valor);
+	}else
+	{
+	System.out.println("LA VARIABLE: "+Id+" ya existe");
+	}
+	}
+	public void addVariable(String Id,String Tipo)
+	{
+	if(!parser.Variables.containsKey(Id))
+	{
+	Variable v1=new Variable(Id,Tipo,"");
+	parser.Variables.put(Id,v1);
+	System.out.println("Se Agrego Var: "+Id+" Tipo: "+Tipo);
+	}else
+	{
+	System.out.println("LA VARIABLE: "+Id+" ya existe");
+	}
+	}
+	
+	public void setValor(String Id, String Valor)
+	{
+	if(parser.Variables.containsKey(Id))
+	{
+		Variable auxv=parser.Variables.get(Id);
+		auxv.setValor(Valor);
+		parser.Variables.put(Id,auxv);
+		System.out.println("Se actualizo la var: "+Id+": "+Valor);
+	}
+	else{
+	System.out.println("LA VARIABLE: "+Id+" no existe");
+	}
+	
+	}
+		
+	public String getValor(String Id)
+	{
+	String v="Vnull";
+	if(parser.Variables.containsKey(Id))
+	{
+	Variable auxv=parser.Variables.get(Id);
+	v=auxv.getValor();
+	}
+	else{
+	System.out.println("LA VARIABLE: "+Id+" no existe");
+	}
+	return v;
+	}
+	
+	public String getTipo(String Id)
+	{
+	String t="Vnull";
+	if(parser.Variables.containsKey(Id))
+	{
+	Variable auxv=parser.Variables.get(Id);
+	t=auxv.getTipo();
+	}
+	else{
+	System.out.println("LA VARIABLE: "+Id+" no existe");
+	}
+	return t;
+	}
+	
+	
+	public String compBool(String val1,String rela,String val2)
+	{
+	
+		
+		String r="falso";
+		try{
+		switch(rela)
+		{
+			case "==":
+						if( val1.equals(val2))
+							r="verdadero";
+						
+					break;
+					
+			case ">":
+						if(Integer.parseInt(val1)>Integer.parseInt(val2))
+						r="verdadero";
+						
+					break;
+                            
+                        case "<":
+						if(Integer.parseInt(val1)<Integer.parseInt(val2))
+						r="verdadero";
+						
+					break;
+                            
+                        case "=>":
+						if(Integer.parseInt(val1)>=Integer.parseInt(val2))
+						r="verdadero";
+						
+					break;
+                            
+                        case "=<":
+						if(Integer.parseInt(val1)<=Integer.parseInt(val2))
+						r="verdadero";
+						
+					break;
+                            
+                        case "><":
+						if(!val1.equals(val2))
+						r="verdadero";
+						
+					break;
+					
+			default:
+				System.out.println("Error de comparacion");
+		}
+
+		}catch(Exception ex)
+		{
+		System.out.println("Error en tipos de datos");
+		}
+		return r;
+	}
+:}
+terminal ttentero,ttletra,ttbool,ttcadena,tentero,tletra,tverdadero,tfalso,tcadena,tmas,tmenos,tmulti,tdiv,tigual,tparena,tparenc,tmayor,tmenor;
+terminal tvar,tid,tcorc,tmientras,thacer,tfin,tpara,taletra,tconcat,tcoma,tsepara,tcrear,tdpuntos,tpath,tanexar,tdc,tdv,thasta;
+terminal tporcent, televa,tor,tand, tdif;
+
+
+
+non terminal INICIO, PRDV, PRDC, PDV, PDC, PTIPO, PCALCULADORA, E,F,G,H,I,J;
+non terminal PRELACIONAL, PEID;
+non terminal PASIGNA, PPCONCAT,PRCC, PCC;
+non terminal PARCHIVOS, EXPL, EXPL2, EXPN, CMP, PBOOL;
+
+start with INICIO;
+
+
+INICIO ::=tdv tdpuntos PRDV:inst {:Nodo n=(Nodo)inst;System.out.println("raiz "+n.valor);parser.Instrucciones = (Nodo)inst;:}
+		|tdv tdpuntos PRDV:inst1 tdc tdpuntos PRDC:inst2 {:Nodo nodo=(Nodo)inst1;nodo.hijos.add((Nodo)inst2);parser.Instrucciones=(Nodo)nodo;:};
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////// DECLARACION DE VARIABLES ///////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+PRDV::=PRDV:inst1 PDV:inst2 {:Nodo nodo =(Nodo) inst1;nodo.hijos.add((Nodo)inst2);RESULT = nodo;:}
+
+		|PDV:inst {:Nodo nodo = new Nodo("");nodo.hijos.add((Nodo)inst);RESULT = nodo;:};
+		
+PDV::= tvar PTIPO:t tid:id {:Nodo nodoId = new Nodo("variable");nodoId.hijos.add(new Nodo((String)id));nodoId.hijos.add(new Nodo((String)t));RESULT=nodoId;:}
+		
+		|tvar PTIPO:t tid:id tigual PCALCULADORA:v {:Nodo nodoId = new Nodo("variable");nodoId.hijos.add(new Nodo((String)id));
+													nodoId.hijos.add(new Nodo((String)t));Nodo inst = new Nodo("asignacion");
+													inst.hijos.add((Nodo)nodoId);inst.hijos.add((Nodo)v);RESULT = inst;:}
+		
+		|tvar PTIPO:t tid:id tigual tletra:l {:Nodo nodoId = new Nodo("variable");nodoId.hijos.add(new Nodo((String)id));
+													nodoId.hijos.add(new Nodo((String)t));Nodo inst = new Nodo("asignacion");
+													inst.hijos.add((Nodo)nodoId);Nodo val=new Nodo("valor");
+													Nodo tip=new Nodo("letra");tip.hijos.add(new Nodo((String)l));val.hijos.add(tip);
+													inst.hijos.add((Nodo)val);RESULT = inst;:}
+		
+		|tvar PTIPO:t tid:id tigual tcadena:c {:Nodo nodoId = new Nodo("variable");nodoId.hijos.add(new Nodo((String)id));
+													nodoId.hijos.add(new Nodo((String)t));Nodo inst = new Nodo("asignacion");
+													inst.hijos.add((Nodo)nodoId);Nodo val=new Nodo("valor");
+													Nodo tip=new Nodo("cadena");tip.hijos.add(new Nodo((String)c));val.hijos.add(tip);
+													inst.hijos.add((Nodo)val);RESULT = inst;:}
+		
+		|tvar PTIPO:t tid:id tigual EXPL:e      {:Nodo nodoId = new Nodo("variable");nodoId.hijos.add(new Nodo((String)id));
+													nodoId.hijos.add(new Nodo((String)t));Nodo inst = new Nodo("asignacion");
+													inst.hijos.add((Nodo)nodoId);Nodo val=new Nodo("valor");
+													Nodo tip=new Nodo("comparacion");tip.hijos.add((Nodo)e);val.hijos.add(tip);
+													inst.hijos.add((Nodo)val);RESULT = inst;:}
+													
+													
+		|tvar PTIPO:t tid:id tigual PBOOL:e {:Nodo nodoId = new Nodo("variable");nodoId.hijos.add(new Nodo((String)id));
+													nodoId.hijos.add(new Nodo((String)t));Nodo inst = new Nodo("asignacion");
+													inst.hijos.add((Nodo)nodoId);inst.hijos.add((Nodo)e);RESULT = inst;:}
+		
+		|tvar PTIPO:t tid:id tigual taletra tparena PCALCULADORA:e tparenc {:Nodo nodoId = new Nodo("variable");nodoId.hijos.add(new Nodo((String)id));
+													nodoId.hijos.add(new Nodo((String)t));Nodo inst = new Nodo("asignacion");
+													inst.hijos.add((Nodo)nodoId);Nodo val=new Nodo("valor");
+													Nodo tip=new Nodo("aletra");tip.hijos.add((Nodo)e);val.hijos.add(tip);
+													inst.hijos.add((Nodo)val);RESULT = inst;:}
+		
+		|PASIGNA:a {:RESULT=a;:};
+		
+PASIGNA::=tid:id tigual PCALCULADORA:v {:Nodo nodoId = new Nodo("variable");nodoId.hijos.add(new Nodo((String)id));Nodo inst = new Nodo("asignacion");
+											inst.hijos.add((Nodo)nodoId);inst.hijos.add((Nodo)v);RESULT = inst;:}
+		
+		|tid:id tigual tletra:l  {:Nodo nodoId = new Nodo("variable");nodoId.hijos.add(new Nodo((String)id));Nodo inst = new Nodo("asignacion");
+										inst.hijos.add((Nodo)nodoId);Nodo v=new Nodo("valor");Nodo tip=new Nodo("letra");
+										tip.hijos.add(new Nodo((String)l));v.hijos.add(tip);inst.hijos.add((Nodo)v);RESULT = inst;:}
+		
+		|tid:id tigual tcadena:c  {:Nodo nodoId = new Nodo("variable");nodoId.hijos.add(new Nodo((String)id));Nodo inst = new Nodo("asignacion");
+										inst.hijos.add((Nodo)nodoId);Nodo v=new Nodo("valor");Nodo tip=new Nodo("cadena");
+										tip.hijos.add(new Nodo((String)c));v.hijos.add(tip);inst.hijos.add((Nodo)v);RESULT = inst;:}
+		
+		|tid:id tigual EXPL:e  {:Nodo nodoId = new Nodo("variable");nodoId.hijos.add(new Nodo((String)id));Nodo inst = new Nodo("asignacion");
+										inst.hijos.add((Nodo)nodoId);Nodo v=new Nodo("valor");Nodo tip=new Nodo("comparacion");
+										tip.hijos.add((Nodo)e);v.hijos.add(tip);inst.hijos.add((Nodo)v);RESULT = inst;:}
+		
+		|tid:id tigual PBOOL:e  {:Nodo nodoId = new Nodo("variable");nodoId.hijos.add(new Nodo((String)id));Nodo inst = new Nodo("asignacion");
+											inst.hijos.add((Nodo)nodoId);inst.hijos.add((Nodo)e);RESULT = inst;:}
+		
+		|tid:id tigual taletra tparena PCALCULADORA:e tparenc {:Nodo nodoId = new Nodo("variable");nodoId.hijos.add(new Nodo((String)id));
+													Nodo inst = new Nodo("asignacion");
+													inst.hijos.add((Nodo)nodoId);Nodo val=new Nodo("valor");
+													Nodo tip=new Nodo("aletra");tip.hijos.add((Nodo)e);val.hijos.add(tip);
+													inst.hijos.add((Nodo)val);RESULT = inst;:};
+
+
+PTIPO::=ttentero:t  {:RESULT=t;:} 
+		|ttletra:t {:RESULT=t;:} 
+		|ttbool:t   {:RESULT=t;:} 
+		|ttcadena:t {:RESULT=t;:}  ;
+		
+PCALCULADORA::=PCALCULADORA:v1 tmas E:v2 {:Nodo nodo = new Nodo("+");nodo.hijos.add((Nodo)v1);nodo.hijos.add((Nodo)v2);RESULT = nodo;:}
+			|E:v {:Nodo nodo=(Nodo)v;Nodo nuevo=nodo.hijos.get(0);System.out.println(nuevo.valor);RESULT=v;:} ;
+			
+E::=E:v1 tmenos F:v2 {:Nodo nodo = new Nodo("-");nodo.hijos.add((Nodo)v1);nodo.hijos.add((Nodo)v2);RESULT = nodo;:}
+		|F:v {:RESULT=v;:} ;
+		
+F::=F:v1 tmulti G:v2 {:Nodo nodo = new Nodo("*");nodo.hijos.add((Nodo)v1);nodo.hijos.add((Nodo)v2);RESULT = nodo;:}
+	|G:v {:RESULT=v;:} ;
+	
+G::=G:v1 tdiv J:v2 {:Nodo nodo = new Nodo("/");nodo.hijos.add((Nodo)v1);nodo.hijos.add((Nodo)v2);RESULT = nodo;:}
+	|J:v  {:RESULT=v;:};
+	
+
+
+
+J::=PEID:v {:RESULT=v;:}
+	|tparena PCALCULADORA:v tparenc {:RESULT=v;:};
+	
+	
+		
+PEID::=tentero:v {:Nodo nodo = new Nodo("valor");Nodo tipo = new Nodo("entero");nodo.hijos.add((Nodo)tipo);
+					tipo.hijos.add(new Nodo((String)v));RESULT = nodo;:}
+	|tid:id {:Nodo nodo = new Nodo("variable");nodo.hijos.add(new Nodo((String)id));RESULT = nodo;:} ;
+	
+EXPL::=EXPL:val1 tor tor EXPL2:val2 {:Nodo nodo=new Nodo("||");
+										nodo.hijos.add((Nodo)val1);
+										nodo.hijos.add((Nodo)val2);
+										RESULT=nodo;:}
+	|EXPL2:e {:RESULT=e;:};
+	
+EXPL2::=EXPL2:val1 tand tand CMP:val2 {:Nodo nodo=new Nodo("&&");nodo.hijos.add((Nodo)val1);nodo.hijos.add((Nodo)val2);RESULT=nodo;:}
+		|CMP:e {:RESULT=e;:};
+		
+
+CMP::=PCALCULADORA:v1 PRELACIONAL:r PCALCULADORA:v2 {:Nodo nodo=new Nodo((String)r);nodo.hijos.add((Nodo)v1);nodo.hijos.add((Nodo)v2);
+												System.out.println("PASO CAL COMP CALC");RESULT=nodo;:}
+	
+	|PCALCULADORA:v1 PRELACIONAL:r PBOOL:v2 {:Nodo nodo=new Nodo((String)r);nodo.hijos.add((Nodo)v1);nodo.hijos.add((Nodo)v2);RESULT=nodo;:}
+	
+	|tparena EXPL:v tparenc {:RESULT=v;:};
+	
+PBOOL::=tverdadero:b {:Nodo nodo = new Nodo("valor");Nodo tipo = new Nodo("bool");nodo.hijos.add((Nodo)tipo);
+					tipo.hijos.add(new Nodo((String)b));RESULT = nodo;:}
+		
+		|tfalso:b {:Nodo nodo = new Nodo("valor");Nodo tipo = new Nodo("entero");nodo.hijos.add((Nodo)tipo);
+					tipo.hijos.add(new Nodo((String)b));RESULT = nodo;:};
+	
+PRELACIONAL::=PRELACIONAL:r tigual:r2 {:RESULT=r.toString()+r2.toString();:}   
+			|PRELACIONAL:r tmayor  :r2 {:RESULT=r.toString()+r2.toString();:}   
+			|PRELACIONAL:r tmenor :r2 {:RESULT=r.toString()+r2.toString();:}   
+			|tigual:r {:RESULT=r;:} 
+			|tmayor:r {:RESULT=r;:} 
+			|tmenor:r {:RESULT=r;:};
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////// DECLARACION DE CICLOS ///////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+PRDC::=PRDC:c1 PDC:c2 {:Nodo nodo = (Nodo)c1;nodo.hijos.add((Nodo)c2);RESULT = nodo;:}
+
+	|PDC:c {:Nodo nodo = (Nodo)c;RESULT = nodo;:};
+	
+PDC::=tmientras EXPL:e thacer PRCC:inst tfin tmientras {:Nodo nodo=new Nodo("mientras");nodo.hijos.add((Nodo)e);nodo.hijos.add((Nodo)inst);
+														RESULT=nodo;:}
+														
+	|tpara PASIGNA:a thasta PCALCULADORA:v PRCC:inst tfin tpara {:Nodo nodo=new Nodo("para");Nodo com=(Nodo)a;
+																com.hijos.add((Nodo)v);com.hijos.add((Nodo)inst); nodo.hijos.add(com);
+																RESULT=nodo;:}
+	|PARCHIVOS:p {:RESULT=p;:};
+	
+	
+PPCONCAT::=PCALCULADORA:pc {:RESULT=pc;:}
+
+		|tletra:l {:Nodo v=new Nodo("valor");Nodo tip=new Nodo("letra");
+										tip.hijos.add(new Nodo((String)l));v.hijos.add(tip);RESULT=v;:}
+										
+		|tcadena:c {:Nodo v=new Nodo("valor");Nodo tip=new Nodo("cadena");
+										tip.hijos.add(new Nodo((String)c));v.hijos.add(tip);RESULT=v;:}
+										
+		|taletra tparena PCALCULADORA:e tparenc {:Nodo val=new Nodo("valor");Nodo tip=new Nodo("aletra");
+												tip.hijos.add((Nodo)e);val.hijos.add(tip);RESULT=val;:}
+		
+		|tsepara tparena tparenc {:Nodo nodo=new Nodo("valor");nodo.hijos.add(new Nodo("separador"));RESULT=nodo;:};
+		
+PRCC::=PRCC:p1 PCC:p2 {:Nodo nodo=(Nodo)p1;nodo.hijos.add((Nodo)p2);RESULT=nodo;:}
+
+	|PCC:p {:Nodo nodo = new Nodo("");nodo.hijos.add((Nodo)p);RESULT = nodo;:};
+	
+PCC::=PDC:pdc {:RESULT=pdc;:}
+	|PASIGNA:a {:RESULT=a;:}
+	|tconcat tparena tid:id tcoma PPCONCAT:con tparenc {:Nodo nodo=new Nodo("concatenar");nodo.hijos.add(new Nodo((String)id));
+														nodo.hijos.add((Nodo)con);RESULT=nodo;:};
+	
+PARCHIVOS::=tcrear tparena tpath:p tcoma tid:id tparenc {:Nodo nodo=new Nodo("crear");nodo.hijos.add(new Nodo((String)p));
+															nodo.hijos.add(new Nodo((String)id));:}
+	
+	|tanexar tparena tpath:p tcoma tid:id tparenc{:Nodo nodo=new Nodo("anexar");nodo.hijos.add(new Nodo((String)p));
+															nodo.hijos.add(new Nodo((String)id));:};
+	
+	

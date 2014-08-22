@@ -1,0 +1,135 @@
+package Analizador;
+import java_cup.runtime.Symbol;
+import java.util.LinkedList;
+%%
+%cupsym simbolos
+%class scanner
+%cup
+%unicode
+%public
+%line
+%full
+%char
+%column
+%ignorecase
+mayus=[A-ZÑ]
+minus=[a-zñ]
+letra={mayus}|{minus}
+num=[0-9]
+ttentero="entero"
+ttletra="letra"
+ttbool="bool"
+ttcadena="cadena"
+tentero={num}+
+tletra="["({letra}|{num})"]"
+tverdadero="verdadero"
+tfalso="falso"
+tcadena="{"({letra}|"-"|{num})*"}"
+tmas="+"
+tmenos="-"
+tmulti="*"
+tdiv="/"
+tporcent="%"
+televa="^"
+tigual="="
+tparena="("
+tparenc=")"
+tmayor=">"
+tmenor="<"
+tvar="var"
+tid={letra}({letra}|{num}|"_")*
+
+
+tmientras="mientras"
+thacer="hacer"
+tfin="fin"
+tpara="para"
+taletra="aletra"
+tconcat="concatenar"
+tcoma=","
+tsepara="separador"
+tcrear="crear_archivo"
+tdpuntos=":"
+tpath="{"{letra}({tdpuntos} ({tdiv} (({letra}|{num}|" "|"_"))+)* {tdiv})? {tid}".txt""}"
+tanexar="anexar_archivo"
+tdc="dc"
+tdv="dv"
+thasta="hasta"
+
+tor="|"
+tand="&"
+tdif="!"
+tsalto=[\t\r\f\n]+
+
+
+%{
+/* Lista con errores sintacticos */
+
+public LinkedList<Errores> ErroresLexicos=new LinkedList<Errores>();
+/* Metodo que es llamado al encontrar un error lexico */
+private void ErrorScan(int linea, int columna, String valor){
+ErroresLexicos.add(new Errores(linea, columna, "Error lexico: caracter "+valor+" no valido") );
+}
+
+
+%}
+
+
+%%
+{tdv} {System.out.println("Se encontro tdv");return new Symbol(simbolos.tdv, yyline,yycolumn,yytext()); }
+{tdc} {System.out.println("Se encontro tdc");return new Symbol(simbolos.tdc, yyline,yycolumn,yytext()); }
+{tvar} {System.out.println("Se encontro tvar");return new Symbol(simbolos.tvar, yyline,yycolumn,yytext()); }
+{thacer} {System.out.println("Se encontro thacer");return new Symbol(simbolos.thacer, yyline,yycolumn,yytext()); }
+{tpara} {System.out.println("Se encontro tpara");return new Symbol(simbolos.tpara, yyline,yycolumn,yytext()); }
+{thasta} {System.out.println("Se encontro thasta");return new Symbol(simbolos.thasta, yyline,yycolumn,yytext()); }
+{taletra} {System.out.println("Se encontro taletra");return new Symbol(simbolos.taletra, yyline,yycolumn,yytext()); }
+{tconcat} {System.out.println("Se encontro tconcat");return new Symbol(simbolos.tconcat, yyline,yycolumn,yytext()); }
+{tsepara} {System.out.println("Se encontro tsepara");return new Symbol(simbolos.tsepara, yyline,yycolumn,yytext()); }
+{tcrear} {System.out.println("Se encontro tcrear");return new Symbol(simbolos.tcrear, yyline,yycolumn,yytext()); }
+{tfin} {System.out.println("Se encontro tfin");return new Symbol(simbolos.tfin, yyline,yycolumn,yytext()); }
+{tmientras} {System.out.println("Se encontro tmientras");return new Symbol(simbolos.tmientras, yyline,yycolumn,yytext()); }
+{tanexar} {System.out.println("Se encontro tanexar");return new Symbol(simbolos.tanexar, yyline,yycolumn,yytext()); }
+{ttentero} {System.out.println("Se encontro ttentero");return new Symbol(simbolos.ttentero, yyline,yycolumn,yytext()); }
+{ttletra} {System.out.println("Se encontro ttletra");return new Symbol(simbolos.ttletra, yyline,yycolumn,yytext()); }
+{ttbool} {System.out.println("Se encontro ttbool");return new Symbol(simbolos.ttbool, yyline,yycolumn,yytext()); }
+{ttcadena} {System.out.println("Se encontro ttcadena");return new Symbol(simbolos.ttcadena, yyline,yycolumn,yytext()); }
+{tentero} {System.out.println("Se encontro tentero");return new Symbol(simbolos.tentero, yyline,yycolumn,yytext()); }
+{tletra} {System.out.println("Se encontro tletra");return new Symbol(simbolos.tletra, yyline,yycolumn,yytext()); }
+{tverdadero} {System.out.println("Se encontro tverdadero");return new Symbol(simbolos.tverdadero, yyline,yycolumn,yytext()); }
+{tfalso} {System.out.println("Se encontro tfalso");return new Symbol(simbolos.tfalso, yyline,yycolumn,yytext()); }
+{tdiv} {System.out.println("Se encontro tdiv");return new Symbol(simbolos.tdiv, yyline,yycolumn,yytext()); }
+{tmas} {System.out.println("Se encontro tmas");return new Symbol(simbolos.tmas, yyline,yycolumn,yytext()); }
+{tmenos} {System.out.println("Se encontro tmenos");return new Symbol(simbolos.tmenos, yyline,yycolumn,yytext()); }
+{tmulti} {System.out.println("Se encontro tmulti");return new Symbol(simbolos.tmulti, yyline,yycolumn,yytext()); }
+{tporcent} {System.out.println("Se encontro tporcent");return new Symbol(simbolos.tporcent, yyline,yycolumn,yytext()); }
+{televa} {System.out.println("Se encontro televa");return new Symbol(simbolos.televa, yyline,yycolumn,yytext()); }
+{tor} {System.out.println("Se encontro tor");return new Symbol(simbolos.tor, yyline,yycolumn,yytext()); }
+{tand} {System.out.println("Se encontro tand");return new Symbol(simbolos.tand, yyline,yycolumn,yytext()); }
+{tdif} {System.out.println("Se encontro tdif");return new Symbol(simbolos.tdif, yyline,yycolumn,yytext()); }
+{tigual} {System.out.println("Se encontro tigual");return new Symbol(simbolos.tigual, yyline,yycolumn,yytext()); }
+{tparena} {System.out.println("Se encontro tparena");return new Symbol(simbolos.tparena, yyline,yycolumn,yytext()); }
+{tparenc} {System.out.println("Se encontro tparenc");return new Symbol(simbolos.tparenc, yyline,yycolumn,yytext()); }
+{tmayor} {System.out.println("Se encontro tmayor");return new Symbol(simbolos.tmayor, yyline,yycolumn,yytext()); }
+{tmenor} {System.out.println("Se encontro tmenor");return new Symbol(simbolos.tmenor, yyline,yycolumn,yytext()); }
+
+
+
+
+
+
+{tcoma} {System.out.println("Se encontro tcoma");return new Symbol(simbolos.tcoma, yyline,yycolumn,yytext()); }
+
+{tdpuntos} {System.out.println("Se encontro tdpuntos");return new Symbol(simbolos.tdpuntos, yyline,yycolumn,yytext()); }
+
+
+{tid} {System.out.println("Se encontro tid");return new Symbol(simbolos.tid, yyline,yycolumn,yytext()); }
+{tcadena} {System.out.println("Se encontro tcadena");return new Symbol(simbolos.tcadena, yyline,yycolumn,yytext()); }
+{tpath} {System.out.println("Se encontro tpath");return new Symbol(simbolos.tpath, yyline,yycolumn,yytext()); }
+{tsalto} {}
+[" "] {}
+
+. {
+		System.out.println("se encontro errlex: "+yyline+" "+yycolumn+" "+yytext());
+		ErrorScan(yyline+1,yycolumn,yytext());
+			
+ } 
